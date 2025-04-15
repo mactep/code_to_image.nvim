@@ -18,10 +18,13 @@ func main() {
 	defer cancel()
 
 	// capture screenshot of an element
-	var buf []byte
-
-	var filepath string
+	var (
+		buf       []byte
+		filepath  string
+		screenshotPath string
+	)
 	flag.StringVar(&filepath, "file", "", "Path to the HTML file")
+	flag.StringVar(&screenshotPath, "screenshot", "screenshot.png", "Path to the screenshot file")
 	flag.Parse()
 
 	if filepath == "" {
@@ -35,7 +38,7 @@ func main() {
 	if err := chromedp.Run(ctx, elementScreenshot(urlstr, `div.container`, &buf)); err != nil {
 		log.Fatal(err)
 	}
-	if err := os.WriteFile("screenshot.png", buf, 0o644); err != nil {
+	if err := os.WriteFile(screenshotPath, buf, 0o644); err != nil {
 		log.Fatal(err)
 	}
 }
