@@ -1,5 +1,3 @@
-// Command screenshot is a chromedp example demonstrating how to take a
-// screenshot of a specific element and of the entire browser viewport.
 package main
 
 import (
@@ -31,6 +29,7 @@ func main() {
 	}
 
 	urlstr := fmt.Sprintf("file://%s", filepath)
+	fmt.Printf("urlstr: %s\n", urlstr)
 
 	// capture entire browser viewport, returning png with quality=90
 	if err := chromedp.Run(ctx, elementScreenshot(urlstr, `div.container`, &buf)); err != nil {
