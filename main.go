@@ -27,6 +27,10 @@ func main() {
 	flag.StringVar(&screenshotPath, "screenshot", "", "Path to the screenshot file")
 	flag.Parse()
 
+	if filepath == "" {
+		log.Fatal("file path is required")
+	}
+
 	if screenshotPath == "" {
 		log.Fatal("screenshot path is required")
 	}
