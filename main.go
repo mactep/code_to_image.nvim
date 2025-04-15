@@ -32,11 +32,9 @@ func main() {
 	if err := chromedp.Run(ctx, elementScreenshot(urlstr, `div.container`, &buf)); err != nil {
 		log.Fatal(err)
 	}
-	if err := os.WriteFile("elementScreenshot.png", buf, 0o644); err != nil {
+	if err := os.WriteFile("screenshot.png", buf, 0o644); err != nil {
 		log.Fatal(err)
 	}
-
-	log.Printf("wrote elementScreenshot.png and fullScreenshot.png")
 }
 
 // elementScreenshot takes a screenshot of a specific element.
