@@ -23,8 +23,12 @@ func main() {
 	var buf []byte
 
 	var filepath string
-	flag.StringVar(&filepath, "file", "/tmp/nvim.mactep/I41I3l/0.html", "Path to the HTML file")
+	flag.StringVar(&filepath, "file", "", "Path to the HTML file")
 	flag.Parse()
+
+	if filepath == "" {
+		log.Fatal("Error: --file argument is required")
+	}
 
 	urlstr := fmt.Sprintf("file://%s", filepath)
 
