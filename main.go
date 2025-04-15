@@ -24,8 +24,12 @@ func main() {
 		screenshotPath string
 	)
 	flag.StringVar(&filepath, "file", "", "Path to the HTML file")
-	flag.StringVar(&screenshotPath, "screenshot", "screenshot.png", "Path to the screenshot file")
+	flag.StringVar(&screenshotPath, "screenshot", "", "Path to the screenshot file")
 	flag.Parse()
+
+	if screenshotPath == "" {
+		log.Fatal("screenshot path is required")
+	}
 
 	urlstr := fmt.Sprintf("file://%s", filepath)
 	fmt.Printf("urlstr: %s\n", urlstr)
