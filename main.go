@@ -4,6 +4,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -20,8 +22,14 @@ func main() {
 	// capture screenshot of an element
 	var buf []byte
 
+	var filepath string
+	flag.StringVar(&filepath, "file", "/tmp/nvim.mactep/I41I3l/0.html", "Path to the HTML file")
+	flag.Parse()
+
+	urlstr := fmt.Sprintf("file://%s", filepath)
+
 	// capture entire browser viewport, returning png with quality=90
-	if err := chromedp.Run(ctx, elementScreenshot(`file:///tmp/nvim.mactep/I41I3l/0.html`, `div.container`, &buf)); err != nil {
+	if err := chromedp.Run(ctx, elementScreenshot(urlstr, `div.container`, &buf)); err != nil {
 		log.Fatal(err)
 	}
 	if err := os.WriteFile("elementScreenshot.png", buf, 0o644); err != nil {
