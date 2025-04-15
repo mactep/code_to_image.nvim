@@ -27,10 +27,6 @@ func main() {
 	flag.StringVar(&screenshotPath, "screenshot", "screenshot.png", "Path to the screenshot file")
 	flag.Parse()
 
-	if filepath == "" {
-		log.Fatal("Error: --file argument is required")
-	}
-
 	urlstr := fmt.Sprintf("file://%s", filepath)
 	fmt.Printf("urlstr: %s\n", urlstr)
 
