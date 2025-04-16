@@ -211,6 +211,7 @@ M._browser_screenshot = function(html)
 
   -- absolute path to the plugin directory
   local index_js = package_path .. "/index.js"
+  local cdp = package_path .. "/cdp"
 
   local browser
   if M.opts.browser ~= "" then
@@ -224,7 +225,7 @@ M._browser_screenshot = function(html)
     end
   end
 
-  local cmd = { "node", index_js, "file://" .. outfile, screenshot_path }
+  local cmd = { cdp, "-file", outfile, "-screenshot", screenshot_path }
 
   local out = vim.system(cmd, { env = { BROWSER = browser } }):wait()
   if M.opts.debug then
