@@ -48,6 +48,7 @@ then uses `wkhtmltopdf` or `node` to convert it to an image.
 
 - Big files are unreadable
 - Wide features such as folding may render the image too wide
+- Does not seem to work with LSP tokens;
 
 ## Options
 
