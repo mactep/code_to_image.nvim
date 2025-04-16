@@ -39,10 +39,13 @@ M._get_outline_color = function()
     return M.opts.colors.outline
   end
 
-  -- TODO: test if "Title" is a better color
-  local bg_color = vim.api.nvim_get_hl(0, { name = "IncSearch" }).bg
 
-  return string.format("#%06x", bg_color)
+  local hex_bg_color = string.format("#%06x", vim.api.nvim_get_hl(0, { name = "IncSearch" }).bg)
+  if hex_bg_color ~= M._get_background_color() then
+    return hex_bg_color
+  end
+
+  return string.format("#%06x", vim.api.nvim_get_hl(0, { name = "PmenuSel" }).bg)
 end
 
 M._get_font = function()
