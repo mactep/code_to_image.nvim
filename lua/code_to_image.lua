@@ -201,6 +201,32 @@ function M._get_package_path()
   return vim.fn.fnamemodify(source, ":p:h:h")
 end
 
+M._servo_screenshot = function(html)
+  local outfile = vim.fn.tempname() .. ".html"
+  vim.fn.writefile(html, outfile)
+  local screenshot_path = vim.fn.tempname() .. ".png"
+  
+  -- Convert file:// URL
+  local url = "file://" .. outfile
+  
+  -- Run servo to capture the screenshot
+  local cmd = { "servo", "--headless", "--output=" .. screenshot_path, url }
+  local out = vim.system(cmd):wait()
+  
+  if M.opts.debug then
+    print("servo command:", vim.inspect(cmd))
+    print("servo output:", vim.inspect(out))
+  end
+  
+  if out.code ~= 0 then
+    print("servo screenshot failed:", out.stderr)
+    return
+  end
+  
+  -- Copy the screenshot to clipboard
+  M._copy_image_to_clipboard({ image_path = screenshot_path })
+end
+
 M._browser_screenshot = function(html)
   local outfile = vim.fn.tempname() .. ".html"
   vim.fn.writefile(html, outfile)
@@ -267,6 +293,11 @@ M.convert = function(range)
 
   if M.opts.print_method == "browser" then
     M._browser_screenshot(html)
+    return
+  end
+
+  if M.opts.print_method == "servo" then
+    M._servo_screenshot(html)
     return
   end
 end
