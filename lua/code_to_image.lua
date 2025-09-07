@@ -210,7 +210,7 @@ function M._get_package_path()
   return vim.fn.fnamemodify(source, ":p:h:h")
 end
 
-M._servo_screenshot = function(html)
+M._servo_screenshot = function(html, opts)
   local outfile = vim.fn.tempname() .. ".html"
   vim.fn.writefile(html, outfile)
   local screenshot_path = vim.fn.tempname() .. ".png"
@@ -218,13 +218,34 @@ M._servo_screenshot = function(html)
   -- Convert file:// URL
   local url = "file://" .. outfile
 
-  -- Run servo to capture the screenshot
-  local cmd = { "servo", "--headless", "--output=" .. screenshot_path, url }
+  -- Calculate window size based on width and number of lines
+  -- The width is in pixels, and we need to estimate height
+  -- Let's assume each line is about 20 pixels tall (approximate for monospace font)
+  -- Add some padding for the container
+  local width = opts.width or 800
+  -- Estimate number of lines from the HTML content
+  -- Count the number of <span> tags which usually correspond to lines
+  local line_count = 0
+  for _ in table.concat(html):gmatch("<span") do
+      line_count = line_count + 1
+  end
+  -- Add some extra height for padding and container
+  local height = math.max((line_count * 20) + 100, 200)
+  
+  -- Run servo to capture the screenshot with specified window size
+  local cmd = { 
+      "servo", 
+      "--headless", 
+      "--output=" .. screenshot_path, 
+      "--window-size=" .. math.floor(width) .. "," .. math.floor(height),
+      url 
+  }
   local out = vim.system(cmd):wait()
 
   if M.opts.debug then
     print("servo command:", vim.inspect(cmd))
     print("servo output:", vim.inspect(out))
+    print("width:", width, "height:", height)
   end
 
   if out.code ~= 0 then
@@ -306,7 +327,7 @@ M.convert = function(range)
   end
 
   if M.opts.print_method == "servo" then
-    M._servo_screenshot(html)
+    M._servo_screenshot(html, { width = width })
     return
   end
 end
