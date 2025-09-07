@@ -218,34 +218,42 @@ M._servo_screenshot = function(html, opts)
   -- Convert file:// URL
   local url = "file://" .. outfile
 
-  -- Calculate window size based on width and number of lines
-  -- The width is in pixels, and we need to estimate height
-  -- Let's assume each line is about 20 pixels tall (approximate for monospace font)
-  -- Add some padding for the container
-  local width = opts.width or 800
-  -- Estimate number of lines from the HTML content
-  -- Count the number of <span> tags which usually correspond to lines
-  local line_count = 0
-  for _ in table.concat(html):gmatch("<span") do
-      line_count = line_count + 1
-  end
-  -- Add some extra height for padding and container
-  local height = math.max((line_count * 20) + 100, 200)
-  
-  -- Run servo to capture the screenshot with specified window size
-  local cmd = { 
-      "servo", 
-      "--headless", 
-      "--output=" .. screenshot_path, 
-      "--screen-size=" .. math.floor(width) .. "x" .. math.floor(height),
-      url 
+  local cmd = {
+    "servo",
+    "--headless",
+    "--output=" .. screenshot_path,
   }
+
+  local width = opts.width
+  local height
+
+  if width then
+    -- Calculate window size based on width and number of lines
+    -- The width is in pixels, and we need to estimate height
+    -- Let's assume each line is about 20 pixels tall (approximate for monospace font)
+    -- Add some padding for the container
+    -- Estimate number of lines from the HTML content
+    -- Count the number of <span> tags which usually correspond to lines
+    local line_count = 0
+    for _ in table.concat(html):gmatch("<span") do
+      line_count = line_count + 1
+    end
+    -- Add some extra height for padding and container
+    height = math.max((line_count * 20) + 100, 200)
+
+    table.insert(cmd, "--screen-size=" .. math.floor(width) .. "x" .. math.floor(height))
+  end
+
+  table.insert(cmd, url)
+
   local out = vim.system(cmd):wait()
 
   if M.opts.debug then
     print("servo command:", vim.inspect(cmd))
     print("servo output:", vim.inspect(out))
-    print("width:", width, "height:", height)
+    if width then
+      print("width:", width, "height:", height)
+    end
   end
 
   if out.code ~= 0 then
