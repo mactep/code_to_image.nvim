@@ -88,9 +88,9 @@ M._update_html = function(html)
   local outline_color = M._get_outline_color()
 
   local bodyStyle = "body { margin: 0; color: " .. foreground_color .. "; }"
-  local containerStyle = ".container { background-color: " .. outline_color .. "; padding: 5%; }"
+  local containerStyle = ".container { background-color: " .. outline_color .. "; padding: 3rem; }"
   local preStyle = "pre { background-color: " ..
-      background_color .. "; border-radius: 1rem; padding: 1rem 1rem 0 1rem; }"
+      background_color .. "; border-radius: 1rem; padding: 1rem 1rem 0 1rem; margin: 0; }"
 
   for i, line in pairs(html) do
     -- if line:match("^%s*%*%s*{") then
@@ -130,20 +130,29 @@ end
 
 M._calculate_width = function(range)
   local max_line_length = M._max_line_length(range)
-  local length_leeway = 4
-  local height_width_ratio = 1.1
-  max_line_length = math.floor((max_line_length + length_leeway) * height_width_ratio)
-  local font_height = 12
-  local width = max_line_length * font_height
+  local padding = 2 -- left and right
+  local background_padding = 6
+  local font_widht = 9.91666 -- this may vary based on the font AFAIK
+  local padding_width = 16
+  local width = max_line_length * font_widht + (padding + background_padding) * padding_width
 
-  return width
+  -- there is a deviation between the real value and the calculated one
+  -- I'm still not sure why
+  width = width * 1.01
+
+  return math.floor(width)
 end
 
--- TODO: there should be a better way of doing this
-M._get_font_width = function()
-  local font_height = 12
-  local height_width_ratio = 1.1
-  return font_height * height_width_ratio
+M._calculate_height = function(range)
+  local lines = range[2] - range[1] + 1 -- +1 since the arrays are 1-indexed
+  print("total lines:", lines)
+  local padding = 1 + 1 -- there seems to be a default bottom line
+  local background_padding = 6
+  local font_height = 20 -- I thin this is fixed
+  local padding_height = 16
+  local height = lines * font_height + (padding + background_padding) * padding_height
+
+  return math.floor(height)
 end
 
 M._copy_image_to_clipboard = function(input)
@@ -225,23 +234,10 @@ M._servo_screenshot = function(html, opts)
   }
 
   local width = opts.width
-  local height
+  local height = opts.height
 
   if width then
-    -- Calculate window size based on width and number of lines
-    -- The width is in pixels, and we need to estimate height
-    -- Let's assume each line is about 20 pixels tall (approximate for monospace font)
-    -- Add some padding for the container
-    -- Estimate number of lines from the HTML content
-    -- Count the number of <span> tags which usually correspond to lines
-    local line_count = 0
-    for _ in table.concat(html):gmatch("<span") do
-      line_count = line_count + 1
-    end
-    -- Add some extra height for padding and container
-    height = math.max((line_count * 20) + 100, 200)
-
-    table.insert(cmd, "--screen-size=" .. math.floor(width) .. "x" .. math.floor(height))
+    table.insert(cmd, "--window-size=" .. math.floor(width) .. "x" .. math.floor(height))
   end
 
   table.insert(cmd, url)
@@ -319,6 +315,7 @@ M.convert = function(range)
   )
 
   local width = M._calculate_width(range)
+  local height = M._calculate_height(range)
 
   M._update_html(html)
 
@@ -335,7 +332,7 @@ M.convert = function(range)
   end
 
   if M.opts.print_method == "servo" then
-    M._servo_screenshot(html, { width = width })
+    M._servo_screenshot(html, { width = width, height = height })
     return
   end
 end
