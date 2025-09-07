@@ -10,7 +10,7 @@ A plugin that converts code to image, while preserving neovim visual elements.
   {
     "mactep/code_to_image.nvim",
     enabled = true,
-    build = "npm i", -- needed for `print_method = "browser"`
+    build = "go build -o cdp", -- needed for print method "browser"
     config = true,
     cmd = "CodeToImage",
     keys = {
@@ -37,7 +37,7 @@ A plugin that converts code to image, while preserving neovim visual elements.
 ## How it works
 
 It uses neovim's `TOhtml` to generate the html representation of the editor and
-then uses `wkhtmltopdf` or `node` to convert it to an image.
+then uses `chromedp`, `wkhtmltopdf` or `servo` to convert it to an image.
 
 ## Dependencies
 
@@ -69,3 +69,31 @@ Every option and its default value:
   },
 }
 ```
+
+## TODO
+
+### Test with a headless browser for faster print times
+
+```google-chrome-stable --remote-debugging-port=9222 --user-data-dir=<nvim-temp-dir>/remote-debug-profile --headless```
+
+Needs to adapt the cdp binary to do:
+
+```go
+allocatorCtx, cancel := chromedp.NewRemoteAllocator(
+    context.Background(),
+    "ws://127.0.0.1:9222/",
+)
+defer cancel()
+
+ctx, cancel := chromedp.NewContext(allocatorCtx)
+defer cancel()
+```
+
+### Test servo
+
+Servo is a fast alternative to opening a full fledged browser, but the
+screenshot currently takes the whole page, meaning that it'll have white gaps
+at the right and the bottom.
+
+Setting the browser height and width to fit the content perfectly would be the
+best approach, but it seems to be unreliable
