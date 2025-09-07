@@ -130,11 +130,20 @@ end
 
 M._calculate_width = function(range)
   local max_line_length = M._max_line_length(range)
-  max_line_length = math.floor((max_line_length + 4) * 1.1)
-  local font_width = 11
-  local width = max_line_length * font_width
+  local length_leeway = 4
+  local height_width_ratio = 1.1
+  max_line_length = math.floor((max_line_length + length_leeway) * height_width_ratio)
+  local font_height = 12
+  local width = max_line_length * font_height
 
   return width
+end
+
+-- TODO: there should be a better way of doing this
+M._get_font_width = function()
+  local font_height = 12
+  local height_width_ratio = 1.1
+  return font_height * height_width_ratio
 end
 
 M._copy_image_to_clipboard = function(input)
@@ -205,24 +214,24 @@ M._servo_screenshot = function(html)
   local outfile = vim.fn.tempname() .. ".html"
   vim.fn.writefile(html, outfile)
   local screenshot_path = vim.fn.tempname() .. ".png"
-  
+
   -- Convert file:// URL
   local url = "file://" .. outfile
-  
+
   -- Run servo to capture the screenshot
   local cmd = { "servo", "--headless", "--output=" .. screenshot_path, url }
   local out = vim.system(cmd):wait()
-  
+
   if M.opts.debug then
     print("servo command:", vim.inspect(cmd))
     print("servo output:", vim.inspect(out))
   end
-  
+
   if out.code ~= 0 then
     print("servo screenshot failed:", out.stderr)
     return
   end
-  
+
   -- Copy the screenshot to clipboard
   M._copy_image_to_clipboard({ image_path = screenshot_path })
 end
