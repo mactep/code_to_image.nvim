@@ -237,7 +237,7 @@ M._servo_screenshot = function(html, opts)
       "servo", 
       "--headless", 
       "--output=" .. screenshot_path, 
-      "--window-size=" .. math.floor(width) .. "," .. math.floor(height),
+      "--window-size=" .. math.floor(width) .. "x" .. math.floor(height),
       url 
   }
   local out = vim.system(cmd):wait()
